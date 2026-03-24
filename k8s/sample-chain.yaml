@@ -1,0 +1,126 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: micro-sample-go
+  labels:
+    app: micro-sample-go
+spec:
+  selector:
+    app: micro-sample-go
+  ports:
+    - port: 8080
+      targetPort: 8080
+      name: http
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: micro-sample-go
+  labels:
+    app: micro-sample-go
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: micro-sample-go
+  template:
+    metadata:
+      labels:
+        app: micro-sample-go
+    spec:
+      containers:
+        - name: go
+          image: docker.io/mikeodigos/micro-sample-go:latest
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 8080
+              name: http
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: http
+            initialDelaySeconds: 2
+            periodSeconds: 5
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: http
+            initialDelaySeconds: 5
+            periodSeconds: 10
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: micro-sample-cpp
+  labels:
+    app: micro-sample-cpp
+spec:
+  selector:
+    app: micro-sample-cpp
+  ports:
+    - port: 8080
+      targetPort: 8080
+      name: http
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: micro-sample-cpp
+  labels:
+    app: micro-sample-cpp
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: micro-sample-cpp
+  template:
+    metadata:
+      labels:
+        app: micro-sample-cpp
+    spec:
+      containers:
+        - name: cpp
+          image: docker.io/mikeodigos/micro-sample-cpp:latest
+          imagePullPolicy: Always
+          env:
+            - name: GO_SERVICE_URL
+              value: http://micro-sample-go:8080
+          ports:
+            - containerPort: 8080
+              name: http
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: http
+            initialDelaySeconds: 2
+            periodSeconds: 5
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: http
+            initialDelaySeconds: 5
+            periodSeconds: 10
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: micro-sample-rust
+  labels:
+    app: micro-sample-rust
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: micro-sample-rust
+  template:
+    metadata:
+      labels:
+        app: micro-sample-rust
+    spec:
+      containers:
+        - name: rust
+          image: docker.io/mikeodigos/micro-sample-rust:latest
+          imagePullPolicy: Always
+          env:
+            - name: CPP_SERVICE_URL
+              value: http://micro-sample-cpp:8080
