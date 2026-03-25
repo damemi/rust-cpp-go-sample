@@ -32,10 +32,10 @@ int main() {
                     "text/plain");
   });
 
-  s.Get("/health", [](const httplib::Request &, httplib::Response &res) {
-    res.status = 200;
-    res.set_content("ok", "text/plain");
-  });
+  // s.Get("/health", [](const httplib::Request &, httplib::Response &res) {
+  //   res.status = 200;
+  //   res.set_content("ok", "text/plain");
+  // });
 
   const char *port_env = std::getenv("PORT");
   int port = 8080;
