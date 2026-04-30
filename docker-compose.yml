@@ -1,0 +1,30 @@
+services:
+  go-server:
+    build: ./go-server
+    image: micro-sample-go:latest
+    container_name: micro-sample-go
+    environment:
+      PORT: "8080"
+    ports:
+      - "8080:8080"
+
+  cpp-relay:
+    build: ./cpp-relay
+    image: micro-sample-cpp:latest
+    container_name: micro-sample-cpp
+    environment:
+      PORT: "8080"
+      GO_SERVICE_URL: "http://go-server:8080"
+    ports:
+      - "8081:8080"
+    depends_on:
+      - go-server
+
+  rust-client:
+    build: ./rust-client
+    image: micro-sample-rust:latest
+    container_name: micro-sample-rust
+    environment:
+      CPP_SERVICE_URL: "http://cpp-relay:8080"
+    depends_on:
+      - cpp-relay
